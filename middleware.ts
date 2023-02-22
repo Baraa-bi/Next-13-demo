@@ -1,9 +1,9 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { jwtVerify } from "jose";
 const PUBLIC_FILE = /\.(.*)$/;
 
 // had to make this again here as the other one is in a file with bcrypt which is not supported on edge runtimes
-const verifyJWT = async (jwt) => {
+const verifyJWT = async (jwt: string) => {
   const { payload } = await jwtVerify(
     jwt,
     new TextEncoder().encode(process.env.JWT_SECRET)
@@ -12,7 +12,7 @@ const verifyJWT = async (jwt) => {
   return payload;
 };
 
-export default async function middleware(req, res) {
+export default async function middleware(req: NextRequest, res: NextResponse) {
   const { pathname } = req.nextUrl;
   if (
     pathname.startsWith("/_next") ||
@@ -25,7 +25,7 @@ export default async function middleware(req, res) {
     return NextResponse.next();
   }
 
-  const jwt = req.cookies.get(process.env.COOKIE_NAME);
+  const jwt = req.cookies.get(process.env.COOKIE_NAME as string);
 
   if (!jwt) {
     req.nextUrl.pathname = "/login";
